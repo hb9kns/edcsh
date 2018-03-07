@@ -28,25 +28,32 @@ else ede opened edcpipe:
  ede `ls -l $edcp`
 fi
 
+tail -f /dev/null > $edcp &
+tailpid=$!
+
 if test -r "$conf"
 then ede sourcing config file "$conf"
  . "$conf"
 else ede using defaults due to unreadable file "$conf"
 fi
 
-doed () {
- $edbin $edopts "$@" <$edcp
-}
-
-doed "$filen" &
+$edbin $edopts "$@" < $edcp &
 pided=$!
+
+echo H > $edcp
 ps -p $pided | grep -F "$pided"
 
-while ( ps -p $pided | grep -F "$pided" >/dev/null 2>&1 )
-do read -p "$edcprompt" c1 cr
+while ps -p $pided | grep -F "$pided" >/dev/null 2>&1
+do
+ ps -p $pided | grep -F "$pided"
+ printf '%s' "$?-$edcprompt"
+ read c1 cr
  case $c1 in
- Quit) echo 'q!' >>$edcp ;;
- *) echo "$c1 $cr" >>$edcp ;;
+ Quit) echo 'q!' > $edcp
+  kill -9 $tailpid
+  ;;
+ *) ede "c1=$c1 cr=$cr"
+  echo "$c1 $cr" > $edcp ;;
  esac
 done
 
