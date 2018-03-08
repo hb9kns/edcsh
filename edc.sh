@@ -36,7 +36,9 @@ then ede sourcing config file "$conf"
 else ede using defaults due to unreadable file "$conf"
 fi
 
-tail -s 0.2 -f $edcp | $edbin $edopts "$@" &
+doed () { tail -s 0.2 -f $edcp | $edbin $edopts "$@" ; }
+
+doed "$@" &
 pided=$!
 edd pided=$pided
 
@@ -55,8 +57,9 @@ then
 fi
  read c1 cr
  case $c1 in
- Quit) echo 'q!' > $edcp
-  kill -9 $pided
+ help) cat <<EOH
+help for $0
+EOH
   ;;
  *) edd "c1=$c1 cr=$cr"
   echo $c1 $cr > $edcp ;;
