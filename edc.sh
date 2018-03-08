@@ -1,4 +1,5 @@
 #!/bin/sh
+DEBUG=
 info='edc.sh // 2018-3-8 Y.Bonetti // https://github.com/hb9kns/edcsh'
 conf=${EDCRC:-$HOME/.edcrc}
 edcp=${TMPDIR:-/tmp}/edcpipe$$
@@ -14,20 +15,18 @@ EOH
  exit 0
 fi
 
-DEBUG=
 edbin=/bin/ed
 edprompt=:
 edopts=-p$edprompt
 edeprompt=::
-edcprompt=edc:
 ede () { echo $edeprompt "$*" >&2 ; }
 edd () { if test -n "$DEBUG" ; then echo $edeprompt DEBUG "$*" >&2 ; fi ; }
 
 if ! mkfifo -m 600 $edcp
 then ede cannot mkfifo $edcp
  exit 1
-else ede opened edcpipe:
- ede `ls -l $edcp`
+else edd opened edcpipe:
+ edd `ls -l $edcp`
 fi
 
 if test -r "$conf"
@@ -48,21 +47,19 @@ then
  ps -p $pided | grep -F "$pided"
 fi
 
-while ps -p $pided >/dev/null 2>&1
+while ps -p $pided >/dev/null
 do
-if test -n "$DEBUG"
-then
- ps -p $pided | grep -F "$pided"
- printf '%s' "$?-$edcprompt"
-fi
- read c1 cr
- case $c1 in
+ edd `ps -p $pided|grep -F $pided`
+ read cl
+ case $cl in
  help) cat <<EOH
 help for $0
 EOH
   ;;
- *) edd "c1=$c1 cr=$cr"
-  echo $c1 $cr > $edcp ;;
+ *) edd cl=$cl
+  if ps -p $pided >/dev/null
+  then echo "$cl" > $edcp
+  fi ;;
  esac
 done
 
