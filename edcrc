@@ -1,0 +1,14 @@
+# edc.sh config file with default values
+# Note: will be sourced by the shell, so be careful with side effects!
+# where is ed?
+#edbin=/bin/ed
+# argument to ed's -p option
+#edprompt=:
+# add more options if desired
+#edopts=-p$edprompt
+# prompt for edc.sh
+#edeprompt=::
+# set to yes for displaying big text chunks as verification
+#chunks=no
+# set to yes for displaying all commands sent to ed
+#echo=no
