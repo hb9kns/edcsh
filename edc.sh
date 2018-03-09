@@ -30,13 +30,19 @@ EOH
  exit 0
 fi
 
-# following settings can be overridden by config file
+# force existence of file
+if test ! -s "$1"
+then : > "$1"
+fi
+
+# following settings could be overridden by config file
 edbin=/bin/ed
 edprompt=:
 edopts=-p$edprompt
 edeprompt=::
 chunks=yes
 echo=no
+fasttail='-s 0.2'
 
 # normal and debugging prompt
 ede () { echo $edeprompt "$*" >&2 ; }
@@ -56,8 +62,12 @@ then ede sourcing config file "$conf"
 else ede using defaults due to unreadable file "$conf"
 fi
 
+# check for legality of fast tail option
+if ! tail $fasttail >/dev/null 2>&1
+then fasttail=''
+fi
 # function to start fifo-controlled ed
-runed () { tail -s 0.2 -f $edcp | $edbin $edopts "$@" ; }
+runed () { tail $fasttail -f $edcp | $edbin $edopts "$@" ; }
 
 # function to send commands to ed
 edex () {
@@ -67,8 +77,8 @@ edex () {
  echo "$@" > $edcp ;
 }
 
-# start ed with the arguments from edc.sh
-runed "$@" &
+# start ed with file argument
+runed "$1" &
 # and keep PID
 pided=$!
 edd pided=$pided
