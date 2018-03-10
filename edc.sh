@@ -36,7 +36,7 @@ then : > "$1"
 fi
 
 # following settings could be overridden by config file
-edbin=/bin/ed
+edbin=ed
 edprompt=:
 edopts=-p$edprompt
 edeprompt=::
@@ -66,6 +66,7 @@ fi
 if ! tail $fasttail >/dev/null 2>&1
 then fasttail=''
 fi
+
 # function to start fifo-controlled ed
 runed () { tail $fasttail -f $edcp | $edbin $edopts "$@" ; }
 
@@ -77,6 +78,9 @@ edex () {
  echo "$@" > $edcp ;
 }
 
+# portable function to scan for PID
+pidscan () { ps | grep "^ *$1 " 2>&1 ; }
+
 # start ed with file argument
 runed "$1" &
 # and keep PID
@@ -87,13 +91,13 @@ edd pided=$pided
 if test -n "$DEBUG"
 then
  edex H
- ps -p $pided | grep -F "$pided"
+ pidscan $pided
 fi
 
 # loop while fifo/pipe still alive
-while ps -p $pided >/dev/null
+while pidscan $pided >/dev/null
 do
- edd `ps -p $pided|grep -F $pided`
+ edd `pidscan $pided`
  read cl
  case $cl in
  help) cat <<EOH >&2
@@ -132,7 +136,7 @@ EOH
   cat $tmp2 >$tmp0
  ;;
  *) edd cl=$cl
-  if ps -p $pided >/dev/null
+  if pidscan $pided >/dev/null
   then edex "$cl"
   fi
  ;;
